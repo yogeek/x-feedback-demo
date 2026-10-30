@@ -59,6 +59,9 @@ reply (`build_reference.py`). Cohen's kappa, settled share and latency are under
 
 Only one race runs at a time. Reloading the page reconnects to the running race.
 
+What happens behind the page during a race (in French):
+[docs/comment-marche-une-course.md](docs/comment-marche-une-course.md).
+
 ## Typical results
 
 One race saved in `results/race-20261030-132430-8d49874252.json`: 100 replies, the
