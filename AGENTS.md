@@ -14,6 +14,10 @@ demo does.
   sub-questions (Noul / Choice / Score) and a `combine` function. `decide()` turns the
   decision answers into one label. All question wording lives here.
 - `static/index.html`, `static/style.css`, `static/app.js`: the page, vanilla JS, no build step.
+- `static/intro.html` (English), `static/intro-fr.html` (French), `static/deck.css`,
+  `static/deck.js`: the introduction slides. Change both languages together. Every
+  figure on them comes from a vendor's documentation or from a saved race in `results/`; keep
+  it that way, and label illustrative examples as such.
 - `data/replies.jsonl`: the pseudonymized replies. `data/reference.json`: the answer key.
 - `classify.py`, `jev_classify.py`, `report.py`: the first CLI version, kept as is.
 

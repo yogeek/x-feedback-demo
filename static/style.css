@@ -77,6 +77,8 @@ button, input { font: inherit; color: inherit; }
 .lede { max-width: 68ch; color: var(--ink-2); margin-top: .75rem; font-size: var(--step-1); }
 .source { color: var(--muted); font-size: var(--step--1); max-width: 34ch; }
 .source a { color: inherit; }
+.intro-link { margin-top: .75rem; }
+.intro-link a { color: var(--decision); font-weight: 650; display: inline-block; padding: .6rem 0; }
 
 /* Explainer: two ways of answering, side by side. */
 .explainer {

@@ -30,6 +30,15 @@ python3 server.py                  # open http://127.0.0.1:8765
 The replies (`data/replies.jsonl`) and the answer key (`data/reference.json`) are in the
 repository, so the race works right after cloning. Each race costs a few cents.
 
+## The introduction slides
+
+`http://127.0.0.1:8765/intro.html` (linked from the race page) introduces System One models
+for a non-technical audience in 15 slides: why LLMs are built for people and System One
+models for code, how decision models (Jev, Clef) and extraction models (Cloudflare's
+Clairic) answer, calibration, a side-by-side comparison, numbers measured in this demo
+and why Sonnet only looks better, when to use which, and how to combine them. Arrow keys or the buttons move between slides;
+`#n` in the URL opens slide n. A French version is at `/intro-fr.html`; each version links to the other.
+
 ## The race page
 
 1. Pick one or more questions: the verdict on Episode 1, requests for the making-of, the
@@ -83,7 +92,7 @@ See `REPORT.md`.
 | `build_reference.py` | builds the answer key with Claude Sonnet 5.5 (~$0.35 for 581 replies and 4 questions) |
 | `fetch_replies.py` | reads the replies of a post for free through the FxTwitter API |
 | `anonymize.py` | replaces reply ids, author handles and private mentions with pseudonyms |
-| `static/` | the page (vanilla HTML, CSS, JS) |
+| `static/` | the race page (`index.html`, `style.css`, `app.js`) and the introduction slides (`intro.html`, `intro-fr.html`, `deck.css`, `deck.js`), vanilla HTML, CSS, JS |
 | `classify.py`, `jev_classify.py`, `report.py` | first CLI version: one LLM or Jev on all replies, then a markdown report |
 
 ## Use another post

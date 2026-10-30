@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Modèles System One et LLM : une introduction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/deck.css">
+</head>
+<body>
+  <nav class="deck-bar" aria-label="Diapositives">
+    <a class="deck-home" href="/">The reply race</a>
+    <a class="deck-lang" href="/intro.html" hreflang="en" lang="en">English</a>
+    <div class="deck-progress" aria-hidden="true"><span id="progress"></span></div>
+    <p class="deck-count" id="count" aria-live="polite"></p>
+    <button type="button" id="prev" aria-label="Diapositive précédente">Précédente</button>
+    <button type="button" id="next" aria-label="Diapositive suivante">Suivante</button>
+  </nav>
+
+  <main class="deck" id="deck">
+
+    <!-- 1 -->
+    <section class="slide slide-title" aria-label="Titre">
+      <h1>Deux sortes de modèles d'IA, deux sortes de lecteurs</h1>
+      <p class="lede">Les LLM écrivent pour des personnes. Les modèles System One, modèles de
+        décision comme Jev et modèles d'extraction comme Clairic, répondent pour du code. Ce que
+        fait chacun, comment il fonctionne, et quand utiliser l'un, l'autre, ou les deux.</p>
+      <div class="readers" aria-hidden="true">
+        <div class="reader reader-human"><span class="glyph">&#9786;</span><span>une personne lit</span></div>
+        <div class="reader reader-code"><span class="glyph">{ }</span><span>un programme lit</span></div>
+      </div>
+      <p class="hint">Les flèches du clavier ou les boutons font passer d'une diapositive à l'autre.</p>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" aria-labelledby="t-split">
+      <h2 id="t-split">La vraie différence : qui lit la réponse</h2>
+      <div class="split">
+        <article class="side side-llm">
+          <h3><span class="kind-dot llm"></span>Les LLM sont faits pour les humains</h3>
+          <ul>
+            <li>Entraînés à écrire des réponses que les gens préfèrent (RLHF) ou qui passent une vérification, comme un résultat de maths (RLVR)</li>
+            <li>La sortie est du texte : une réponse de chat, un essai, du code, parfois un refus</li>
+            <li>Une personne le lit, le juge et le corrige si besoin</li>
+          </ul>
+          <p class="side-example">« Voici un résumé des 581 réponses : la plupart des spectateurs ont trouvé l'épisode&hellip; »</p>
+        </article>
+        <article class="side side-s1">
+          <h3><span class="kind-dot decision"></span>Les modèles System One sont faits pour le code</h3>
+          <ul>
+            <li>Entraînés à rendre des décisions avec des probabilités calibrées (RLCD)</li>
+            <li>La sortie est une donnée typée, définie à l'avance : une option, un score, une probabilité</li>
+            <li>Un programme la lit et agit en fonction, sans humain entre les deux</li>
+          </ul>
+          <pre class="side-example code">if answer.noul &gt; 0.7:
+    route_to_support(ticket)</pre>
+        </article>
+      </div>
+      <p class="takeaway">Le pari de TypeSafe : l'essentiel de l'automatisation par l'IA sera du
+        logiciel qui parle à du logiciel, donc l'interface pour les machines compte plus que
+        l'interface de chat.</p>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" aria-labelledby="t-name">
+      <h2 id="t-name">D'où vient le nom</h2>
+      <p class="lede">Daniel Kahneman, <cite>Système 1 / Système 2 : les deux vitesses de la pensée</cite> :
+        nous pensons avec deux systèmes.</p>
+      <div class="systems">
+        <article class="system system-1">
+          <p class="system-num">1</p>
+          <h3>Système 1 : rapide et intuitif</h3>
+          <p>Vous lisez une réponse et vous savez tout de suite qu'elle est en colère. Pas d'étapes, pas de mots dans la tête.</p>
+          <p class="system-model">Modèles System One : un jugement rapide, de quelques centaines de millisecondes à une ou deux secondes</p>
+        </article>
+        <article class="system system-2">
+          <p class="system-num">2</p>
+          <h3>Système 2 : lent et réfléchi</h3>
+          <p>Vous préparez un voyage ou vérifiez une démonstration étape par étape, en formulant chaque étape.</p>
+          <p class="system-model">Les LLM, et encore plus les LLM de raisonnement : ils pensent en écrivant, token après token</p>
+        </article>
+      </div>
+      <p class="hint">Le système 1 est connu pour se tromper. Ces modèles parient qu'un jugement
+        rapide peut devenir fiable s'il est accompagné d'une probabilité honnête.</p>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" aria-labelledby="t-race">
+      <h2 id="t-race">Même réponse, même question, deux façons de répondre</h2>
+      <p class="state"><span lang="en">"The lip sync is off and the voice acting feels flat, but the
+        landscapes in Episode 1 look amazing."</span><br><small>(« Le doublage n'est pas synchro et
+        les voix sont plates, mais les paysages de l'épisode 1 sont superbes. »)</small></p>
+      <div class="duel">
+        <article class="duel-lane duel-llm">
+          <h3><span class="kind-dot llm"></span>Un LLM écrit la réponse</h3>
+          <pre class="typed" id="typed" aria-label="Sortie du LLM">{"opinion": "mixed"}</pre>
+          <ol class="steps">
+            <li>Génère un token à la fois, et chacun est facturé</li>
+            <li>Votre code analyse le texte. Un JSON mal formé, c'est une réponse perdue.</li>
+            <li>Aucune indication de son degré de certitude</li>
+          </ol>
+        </article>
+        <article class="duel-lane duel-s1">
+          <h3><span class="kind-dot decision"></span>Un modèle de décision note chaque réponse possible</h3>
+          <div class="bars" id="bars" aria-label="Sortie du modèle de décision">
+            <div class="bar" style="--p:1"><span>mitigé</span><b>1,00</b></div>
+            <div class="bar" style="--p:0"><span>négatif</span><b>0,00</b></div>
+            <div class="bar" style="--p:0"><span>positif</span><b>0,00</b></div>
+          </div>
+          <ol class="steps">
+            <li>Lit la réponse et les réponses possibles une seule fois</li>
+            <li>Rend une probabilité pour chaque réponse, toutes en même temps. Il n'écrit rien.</li>
+            <li>Seule l'entrée est facturée. La réponse est toujours l'une des options.</li>
+          </ol>
+        </article>
+      </div>
+      <button type="button" class="play" id="play">Rejouer</button>
+      <p class="hint">Sortie réelle de Jev 1.14 sur cette phrase. Le côté LLM est ralenti pour montrer
+        son fonctionnement, il n'est pas chronométré.</p>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" aria-labelledby="t-prims">
+      <h2 id="t-prims">Un modèle de décision répond à des questions typées</h2>
+      <p class="lede">Vous envoyez un <strong>état</strong> (le texte ou les données à juger) et
+        quelques <strong>questions</strong>. Chaque question a un type qui fixe la forme de la réponse.</p>
+      <div class="prims">
+        <article class="prim">
+          <h3>Noul</h3>
+          <p class="prim-q">Cette affirmation est-elle vraie ?</p>
+          <p class="prim-a"><code>noul: 0.99</code></p>
+          <p>« L'auteur demande à être contacté. » Une probabilité entre 0 et 1.</p>
+        </article>
+        <article class="prim">
+          <h3>Choice</h3>
+          <p class="prim-q">Quelle option convient ?</p>
+          <p class="prim-a"><code>choice: "mixed"</code></p>
+          <p>Une option de votre liste, avec une probabilité pour chaque option.</p>
+        </article>
+        <article class="prim">
+          <h3>Score</h3>
+          <p class="prim-q">Où sur cette échelle ?</p>
+          <p class="prim-a"><code>score: 1.36</code></p>
+          <p>Des niveaux que vous décrivez (de « aucune critique » à « insultant ») ; le score tombe entre « légère » et « forte ».</p>
+        </article>
+        <article class="prim">
+          <h3>Box</h3>
+          <p class="prim-q">Où est-ce dans l'image ?</p>
+          <p class="prim-a"><code>top, left, bottom, right</code></p>
+          <p>Jev, encore expérimental : les bords de l'objet, en fractions de l'image.</p>
+        </article>
+      </div>
+      <p class="takeaway">Les questions d'une même requête sont traitées en parallèle et ne se voient
+        pas entre elles. Votre code combine les réponses : la logique reste dans le code, là où on
+        peut la tester.</p>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" aria-labelledby="t-extract">
+      <h2 id="t-extract">Modèles d'extraction : des valeurs typées tirées d'un texte brut</h2>
+      <p class="lede">La deuxième famille de modèles System One, ouverte par Clairic de Cloudflare.
+        Un modèle de décision choisit parmi vos options ; un modèle d'extraction rend des
+        <strong>valeurs</strong> : un passage du texte, un nombre, une date.</p>
+      <div class="extract">
+        <p class="extract-text" aria-label="Texte avec les valeurs extraites">
+          Bonjour, la commande <mark class="ent id">A-88412</mark> est arrivée cassée. J'ai payé
+          <mark class="ent amount">129,90 $</mark> le <mark class="ent date">2 octobre</mark>.
+          <mark class="ent crit">Le couvercle est fendu</mark> et le carton était trempé.
+        </p>
+        <table class="extract-table">
+          <thead><tr><th scope="col">champ (type)</th><th scope="col">valeur</th><th scope="col">d'après le texte</th><th scope="col">p_null</th><th scope="col">confiance</th></tr></thead>
+          <tbody>
+            <tr><td><span class="sw id"></span>order_id (text)</td><td>"A-88412"</td><td>caractères 21 à 28</td><td>0,00</td><td>1,00</td></tr>
+            <tr><td><span class="sw amount"></span>amount_paid (number, USD)</td><td>129.90</td><td>lu</td><td>0,00</td><td>0,99</td></tr>
+            <tr><td><span class="sw date"></span>paid_on (date)</td><td>2026-10-02</td><td>« 2 octobre », résolu</td><td>0,01</td><td>0,97</td></tr>
+            <tr><td><span class="sw crit"></span>damage (text)</td><td>"Le couvercle est fendu"</td><td>caractères 82 à 104</td><td>0,02</td><td>0,93</td></tr>
+            <tr class="null-row"><td><span class="sw none"></span>tracking_number (text)</td><td><b>null</b></td><td>absent du texte</td><td>1,00</td><td>0,42</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="facts">
+        <li>Les valeurs texte sont <strong>des passages avec leur position</strong> : on peut les
+          surligner dans la source, et elles ne peuvent pas contenir un chiffre inventé.</li>
+        <li>Un champ absent revient à <strong>null</strong> avec <code>p_null</code>, au lieu d'une
+          valeur plausible inventée. Le code envoie les valeurs peu sûres à une personne.</li>
+        <li>Tous les champs sont traités en une passe : trente champs coûtent à peu près autant que trois.</li>
+      </ul>
+      <p class="hint">Valeurs illustratives, au format de réponse documenté par Cloudflare. Clairic
+        tourne sur Workers AI sous le nom <code>@cf/cloudflare/clairic</code> (preview), 0,10 $ par
+        million de tokens d'entrée, sortie non facturée.</p>
+    </section>
+
+    <!-- 6b -->
+    <section class="slide" aria-labelledby="t-fields">
+      <h2 id="t-fields">Extraire, calculer, estimer, prévoir</h2>
+      <p class="lede">Vous décrivez chaque champ avec un type et une consigne en langage courant. Le
+        type fixe la forme de la réponse.</p>
+      <div class="prims prims-6">
+        <article class="prim"><h3>text</h3><p class="prim-q">Copier un passage de l'entrée</p><p class="prim-a"><code>"A-88412", span [21, 28]</code></p></article>
+        <article class="prim"><h3>number</h3><p class="prim-q">Lire ou calculer un nombre</p><p class="prim-a"><code>141.59</code></p><p>Prix plus taxe : une ou deux étapes de calcul.</p></article>
+        <article class="prim"><h3>date, time, duration</h3><p class="prim-q">Une date ou une durée valide</p><p class="prim-a"><code>2026-10-02</code></p><p>« jeudi prochain » résolu par rapport à une date de référence.</p></article>
+        <article class="prim"><h3>list</h3><p class="prim-q">Toutes les valeurs qui correspondent</p><p class="prim-a"><code>["A-88412", "A-88415"]</code></p><p>Dans leur ordre d'apparition.</p></article>
+        <article class="prim"><h3>estimate</h3><p class="prim-q">Une valeur que le texte ne donne pas</p><p class="prim-a"><code>médiane 415 000, 80 % : 370 k à 470 k</code></p><p>Le prix d'une maison d'après des ventes comparables, dans des bornes que vous fixez.</p></article>
+        <article class="prim"><h3>forecast</h3><p class="prim-q">Les prochains points d'une série</p><p class="prim-a"><code>un intervalle par point</code></p><p>Des tendances simples, jusqu'à 64 points.</p></article>
+      </div>
+      <p class="takeaway">Le conseil de Cloudflare lui-même : laisser Clairic lire les valeurs et le
+        code faire les longs calculs. Les calculs en plusieurs étapes et les sommes sur beaucoup de
+        lignes ne sont pas encore fiables.</p>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" aria-labelledby="t-calib">
+      <h2 id="t-calib">Une probabilité sur laquelle on peut agir</h2>
+      <p class="lede">Calibré veut dire : parmi toutes les réponses données avec une probabilité de
+        0,8, environ 80 % sont justes. Le code peut donc fixer une règle dessus.</p>
+      <div class="gate" aria-label="Seuils sur une probabilité oui ou non">
+        <div class="gate-zone gate-no"><b>sous 0,3</b><span>considéré comme non</span><span class="gate-act">action automatique</span></div>
+        <div class="gate-zone gate-mid"><b>de 0,3 à 0,7</b><span>pas sûr</span><span class="gate-act">envoi à une personne ou à un plus gros modèle</span></div>
+        <div class="gate-zone gate-yes"><b>au-dessus de 0,7</b><span>considéré comme oui</span><span class="gate-act">action automatique</span></div>
+      </div>
+      <ul class="facts">
+        <li>Les seuils sont à vous, fixés selon le coût de chaque erreur : bloquer un bon message, ou
+          en laisser passer un mauvais.</li>
+        <li>Un LLM peut écrire « j'en suis sûr à 90 % », mais ce chiffre est du texte, pas une probabilité mesurée.</li>
+        <li>La calibration vaut sur un grand nombre de réponses, pas pour chacune. Vérifiez-la sur un
+          échantillon étiqueté avant de lui faire confiance.</li>
+      </ul>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" aria-labelledby="t-table">
+      <h2 id="t-table">Côte à côte</h2>
+      <div class="table-wrap">
+        <table class="compare">
+          <thead>
+            <tr><th scope="col"></th>
+              <th scope="col"><span class="kind-dot llm"></span>LLM</th>
+              <th scope="col"><span class="kind-dot decision"></span>Modèle de décision</th>
+              <th scope="col"><span class="kind-dot extraction"></span>Modèle d'extraction</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Fait pour</th><td>les humains</td><td>le code</td><td>le code</td></tr>
+            <tr><th scope="row">Rend</th><td>n'importe quel texte</td><td>une option, un score, une probabilité</td><td>une valeur : passage avec position, nombre, date, estimation</td></tr>
+            <tr><th scope="row">Réponses possibles</th><td>ouvertes</td><td>fixées par vous à l'avance</td><td>une valeur du type déclaré, ou null</td></tr>
+            <tr><th scope="row">Degré de certitude</th><td>non mesuré</td><td>probabilité calibrée pour chaque réponse</td><td>confiance, probabilité que la valeur manque, intervalles</td></tr>
+            <tr><th scope="row">Erreurs de format</th><td>possibles : JSON cassé, étiquette hors liste</td><td>aucune : typé par construction</td><td>aucune : typé par construction</td></tr>
+            <tr><th scope="row">S'explique</th><td>oui, peut écrire son raisonnement</td><td>non</td><td>non</td></tr>
+            <tr><th scope="row">Facturation</th><td>l'entrée et chaque token écrit</td><td>l'entrée seulement</td><td>l'entrée seulement</td></tr>
+            <tr><th scope="row">Temps par appel</th><td>de quelques secondes à quelques minutes avec raisonnement</td><td>de moins d'une seconde à 2 s environ</td><td>moins d'une seconde (chiffre du fournisseur)</td></tr>
+            <tr><th scope="row">Chat, rédaction, code</th><td>oui</td><td>non</td><td>non</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" aria-labelledby="t-numbers">
+      <h2 id="t-numbers">Mesuré sur les réponses X</h2>
+      <p class="lede">Une course de cette démo : 100 réponses, « Que pensent-ils de l'épisode 1 ? »,
+        les LLM reçoivent 20 réponses par requête (leur réglage le moins cher).</p>
+      <div class="table-wrap">
+        <table class="compare numbers">
+          <thead><tr><th scope="col">modèle</th><th scope="col">course entière</th><th scope="col">un appel</th><th scope="col">coût pour 1 M de réponses</th><th scope="col">bonnes réponses</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><span class="kind-dot decision"></span>Jev 1.14</th><td>6,1 s</td><td>1,6 s, 1 réponse</td><td>30 $</td><td>86 %</td></tr>
+            <tr><th scope="row"><span class="kind-dot decision"></span>Liquid d1</th><td>6,9 s</td><td>1,6 s, 1 réponse</td><td>9 $</td><td>81 %</td></tr>
+            <tr><th scope="row"><span class="kind-dot llm"></span>Claude Haiku 5.5</th><td>3,8 s</td><td>3,3 s, 20 réponses</td><td>16 $</td><td>82 %</td></tr>
+            <tr><th scope="row"><span class="kind-dot llm"></span>gpt-oss-20b</th><td>11,5 s</td><td>5,6 s, 20 réponses</td><td>4 $</td><td>83 %</td></tr>
+            <tr><th scope="row"><span class="kind-dot llm"></span>Mistral Nemo</th><td>39,7 s</td><td>10,8 s, 20 réponses</td><td>1,4 $</td><td>74 %</td></tr>
+            <tr><th scope="row"><span class="kind-dot llm"></span>Claude Sonnet 5.5 (corrigé)</th><td>4,9 s</td><td>4,1 s, 20 réponses</td><td>314 $</td><td>93 %</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="facts">
+        <li>Les petits modèles de décision égalent ou battent les LLM de même prix en bonnes réponses, et n'en perdent aucune.</li>
+        <li>Sur les 581 réponses, Llama 3.1 8B a cassé le format JSON 441 fois : ces réponses ont été perdues.</li>
+        <li>Les modèles de décision ne sont pas toujours les moins chers : un petit LLM qui traite les
+          réponses par lots peut coûter moins. Ce qu'ils apportent : un appel par élément, aucune
+          analyse de texte, et une probabilité pour chaque réponse.</li>
+      </ul>
+      <p class="takeaway">Ici, Sonnet semble plus rapide et plus juste que Jev. La diapositive
+        suivante explique pourquoi cette lecture est trompeuse.</p>
+    </section>
+
+    <!-- 9b -->
+    <section class="slide" aria-labelledby="t-why">
+      <h2 id="t-why">« Mais Sonnet gagne. Pourquoi prendre Jev ? »</h2>
+      <div class="whys">
+        <article class="why">
+          <p class="why-fig">93 %</p>
+          <h3>Sonnet est noté contre lui-même</h3>
+          <p>Le corrigé, ce sont les étiquettes de Sonnet lors d'une exécution précédente : « bonnes
+            réponses » veut donc dire « d'accord avec Sonnet ». Malgré ça, Sonnet change d'avis sur
+            7 à 9 % des réponses d'une exécution à l'autre. Tout modèle qui juge comme lui est avantagé.</p>
+        </article>
+        <article class="why">
+          <p class="why-fig">1,7 s <span>contre</span> 3,3 s</p>
+          <h3>Il n'est plus rapide que par lots</h3>
+          <p>Sonnet a reçu 20 réponses par appel. Avec une réponse par appel, comme dans la plupart des
+            applications (un message arrive, l'app décide), Jev a répondu en 1,7 s et Sonnet en 3,3 s.
+            Le coût par million de réponses est devenu <strong>30 $ pour Jev et 1 607 $ pour
+            Sonnet</strong>, 53 fois plus.</p>
+        </article>
+        <article class="why">
+          <p class="why-fig">91 % <span>contre</span> 65 %</p>
+          <h3>Jev sait quand il n'est pas sûr</h3>
+          <p>Jev était sûr sur 80 des 100 réponses et en a eu 91 % de justes. Il a signalé les 20
+            autres, où il n'avait que 65 % de justes. Sonnet ne donne aucun signal de ce genre : rien
+            ne marque les réponses où il change d'avis.</p>
+        </article>
+      </div>
+      <div class="cascade-box">
+        <p class="cascade-flow"><span class="n s1">Jev sur chaque réponse</span><span class="arrow">&rarr;</span><span class="n llm">Sonnet sur les 20 % signalées</span></p>
+        <p><strong>90 % de bonnes réponses pour environ 93 $ par million de réponses</strong>, contre
+          93 % pour 314 $ avec Sonnet seul par lots, ou 1 607 $ une par une. Le LLM est gardé pour
+          les cas difficiles.</p>
+      </div>
+      <p class="hint">Mesuré sur deux courses de cette démo (100 réponses, « Que pensent-ils de
+        l'épisode 1 ? ») : LLM à 20 réponses par appel, puis à une par appel. La cascade est calculée
+        à partir des réponses de la première course, au prix par lots de Sonnet pour les réponses
+        transmises.</p>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide" aria-labelledby="t-uses">
+      <h2 id="t-uses">Quand utiliser lequel</h2>
+      <div class="uses">
+        <article class="use use-s1">
+          <h3><span class="kind-dot decision"></span>Un modèle System One, quand du code agit sur la réponse</h3>
+          <ul>
+            <li>Classer et router en masse : tickets, e-mails, commentaires, documents</li>
+            <li>Des « if » intelligents : « est-ce une demande de remboursement ? » dans du code ordinaire</li>
+            <li>Garde-fous : filtrer ce qui entre dans une app LLM et ce qui en sort</li>
+            <li>Noter selon une grille : urgence, risque, qualité, puis décider selon le chiffre</li>
+            <li>Extraire des valeurs de documents : montants, dates, noms, avec leur position</li>
+            <li>Transformer du texte en variables pour un modèle statistique</li>
+            <li>Temps réel : une décision dans une boucle de jeu, un filtre sur un chat en direct</li>
+          </ul>
+        </article>
+        <article class="use use-llm">
+          <h3><span class="kind-dot llm"></span>Un LLM, quand une personne lit la réponse</h3>
+          <ul>
+            <li>Chat et assistants</li>
+            <li>Écrire, réécrire, traduire, résumer</li>
+            <li>Générer et relire du code</li>
+            <li>Expliquer une décision avec des mots</li>
+            <li>Questions ouvertes, sans liste de réponses possibles</li>
+            <li>Raisonnement et planification en plusieurs étapes, agents qui utilisent des outils</li>
+          </ul>
+        </article>
+      </div>
+      <p class="takeaway">Test rapide : une personne compétente pourrait-elle répondre en quelques
+        secondes en choisissant dans une liste ? Alors c'est une question pour un modèle System One.</p>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" aria-labelledby="t-together">
+      <h2 id="t-together">Plus forts ensemble</h2>
+      <p class="lede">Dans un vrai produit, les deux travaillent côte à côte : le modèle System One
+        décide vite, le LLM prend ce qui demande des mots ou un raisonnement poussé.</p>
+      <div class="patterns">
+        <article class="pattern pattern-wide">
+          <h3>Extraire, décider, puis écrire</h3>
+          <p class="flow"><span class="n ex">Clairic : valeurs</span><span class="arrow">&rarr;</span><span class="n s1">Clef : décision</span><span class="arrow">&rarr;</span><span class="n llm">LLM : la réponse</span></p>
+          <p>L'exemple de sinistre d'assurance de Cloudflare : Clairic lit les montants et les dates,
+            Clef décide, un LLM écrit le courrier. 19,3 s au lieu de 61,7 s et environ deux fois moins
+            cher qu'un pipeline tout LLM (chiffres de Cloudflare).</p>
+        </article>
+        <article class="pattern">
+          <h3>Routage</h3>
+          <p class="flow"><span class="n s1">modèle de décision</span><span class="arrow">&rarr;</span><span class="n code">code</span> ou <span class="n llm">LLM</span> ou <span class="n human">personne</span></p>
+          <p>Classer chaque demande, puis l'envoyer à du code simple, à un LLM spécialisé ou à un humain.</p>
+        </article>
+        <article class="pattern">
+          <h3>Garde-fous</h3>
+          <p class="flow"><span class="n s1">contrôle</span><span class="arrow">&rarr;</span><span class="n llm">LLM</span><span class="arrow">&rarr;</span><span class="n s1">contrôle</span></p>
+          <p>Filtrer chaque message avant qu'il n'atteigne le LLM, et chaque réponse avant qu'elle n'atteigne l'utilisateur.</p>
+        </article>
+        <article class="pattern">
+          <h3>Cascade</h3>
+          <p class="flow"><span class="n llm">réponse bon marché</span><span class="arrow">&rarr;</span><span class="n s1">vérification</span><span class="arrow">&rarr;</span><span class="n llm">modèle de raisonnement</span></p>
+          <p>Garder la réponse bon marché quand la vérification est sûre, transmettre le reste. L'essentiel de la qualité pour une fraction du coût.</p>
+        </article>
+        <article class="pattern">
+          <h3>Filtrer avant le LLM</h3>
+          <p class="flow"><span class="n code">recherche</span><span class="arrow">&rarr;</span><span class="n s1">noter les passages</span><span class="arrow">&rarr;</span><span class="n llm">le LLM répond</span></p>
+          <p>Noter les passages retrouvés et ne garder que les pertinents : le LLM lit moins et invente moins.</p>
+        </article>
+        <article class="pattern">
+          <h3>Trier, puis expliquer</h3>
+          <p class="flow"><span class="n s1">étiqueter 1 M de réponses</span><span class="arrow">&rarr;</span><span class="n llm">résumer les principales</span></p>
+          <p>Cette démo : compter les opinions sur chaque réponse à bas coût, puis laisser un LLM écrire le rapport pour les humains.</p>
+        </article>
+        <article class="pattern">
+          <h3>Le LLM écrit le code</h3>
+          <p class="flow"><span class="n llm">agent de code</span><span class="arrow">&rarr;</span><span class="n code">programme</span><span class="arrow">&rarr;</span><span class="n s1">modèle de décision</span></p>
+          <p>Un agent de code construit l'app ; l'app appelle le modèle de décision à l'exécution. Jev ne remplace pas le LLM de l'agent.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" aria-labelledby="t-limits">
+      <h2 id="t-limits">Les limites à garder en tête</h2>
+      <ul class="facts large">
+        <li>Aucun texte : pas d'explication d'une réponse, pas de résumé, pas de chat.</li>
+        <li>Il faut connaître les réponses possibles à l'avance. Une question ouverte demande un LLM.</li>
+        <li>Les questions d'une même requête ne se voient pas : mettez le contexte dans l'état.</li>
+        <li>La formulation compte : le nom d'une option est tout ce que le modèle voit. Testez sur des cas réels et difficiles.</li>
+        <li>Les modèles d'extraction lisent et font des calculs courts : les longs calculs et les
+          sommes sur beaucoup de lignes relèvent du code.</li>
+        <li>Des produits jeunes : l'API Decisions d'OpenRouter est en alpha, Clairic est en preview,
+          les images et Box sont expérimentales, et les chiffres de vitesse et de coût publiés par les
+          fournisseurs sont les leurs.</li>
+      </ul>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide slide-title slide-end" aria-labelledby="t-end">
+      <h2 id="t-end">Si une personne lit la sortie, prenez un LLM.<br>Si du code la lit, demandez à un modèle System One.</h2>
+      <p class="lede">À voir en direct : une course entre modèles de décision et LLM sur les réponses
+        au post de l'épisode 1 d'Odyssey.</p>
+      <a class="cta" href="/">Ouvrir la course (en anglais)</a>
+      <p class="hint sources">Sources : documentation TypeSafe (docs.typesafe.ai) et article de blog
+        présentant les modèles System One ; article de blog et page Workers AI de Cloudflare
+        présentant Clairic (19 octobre 2026) ; pages des modèles et tutoriel Jev d'OpenRouter ;
+        mesures de cette démo, 30 octobre 2026.</p>
+    </section>
+  </main>
+
+  <script src="/deck.js" type="module"></script>
+</body>
+</html>
