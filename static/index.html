@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The reply race: decision models vs LLMs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="masthead">
+    <div class="masthead-text">
+      <h1>The reply race</h1>
+      <p class="lede">Hundreds of replies to a post, one question to answer about each of them.
+        Pick the question and the models, start the race, and see which model is the fastest,
+        the cheapest, and gets the most answers right.</p>
+    </div>
+    <p class="source" id="source"></p>
+  </header>
+
+  <details class="explainer-wrap" id="explainer" open>
+    <summary>How do the two kinds of model answer?</summary>
+    <section class="explainer">
+      <article class="how how-llm">
+        <h3><span class="kind-dot llm" aria-hidden="true"></span>An LLM answers by writing</h3>
+        <ol>
+          <li>Reads a prompt with the replies and the allowed answers</li>
+          <li>Writes its answer word by word, and you pay for each one</li>
+          <li>A program reads that text. If it is badly formed, the answer is lost.</li>
+        </ol>
+        <pre class="sample" aria-label="Example LLM output">{"i": 3, "opinion": "negative"}</pre>
+      </article>
+      <article class="how how-decision">
+        <h3><span class="kind-dot decision" aria-hidden="true"></span>A decision model answers by choosing</h3>
+        <ol>
+          <li>Reads the post, one reply, and the question with its possible answers</li>
+          <li>Scores every possible answer at once. It writes nothing.</li>
+          <li>Returns a probability for each answer. The program picks the top one.</li>
+        </ol>
+        <div class="sample sample-probs" aria-label="Example decision model output">
+          <span style="--p:.91">negative 0.91</span>
+          <span style="--p:.06">mixed 0.06</span>
+          <span style="--p:.03">positive 0.03</span>
+        </div>
+      </article>
+    </section>
+  </details>
+
+  <div class="runbar" id="runbar">
+    <p class="run-summary" id="run-summary" aria-live="polite"></p>
+    <p class="clock"><span class="clock-label">Race clock</span> <output id="clock">0.0 s</output></p>
+    <div class="run-actions">
+      <button type="button" id="edit" class="secondary" hidden>Change settings</button>
+      <button type="button" id="see-results" class="secondary" hidden>See results</button>
+      <button type="button" id="stop" class="secondary" hidden>Stop race</button>
+      <button type="submit" form="setup-form" id="start" class="primary">Start race</button>
+    </div>
+  </div>
+
+  <main class="stage">
+    <section class="setup" id="setup" aria-labelledby="setup-title">
+      <h2 id="setup-title">Set up the race</h2>
+      <form id="setup-form">
+        <fieldset id="setup-fields">
+          <div class="setup-grid">
+            <fieldset class="group group-questions">
+              <legend>Questions</legend>
+              <p class="hint">Pick one or more. Every model answers all of them for each reply.</p>
+              <div id="question-list" class="cards cards-questions"></div>
+            </fieldset>
+
+            <fieldset class="group">
+              <legend>Replies to answer</legend>
+              <div id="sample-list" class="segmented" role="radiogroup" aria-label="Replies to answer"></div>
+              <p class="hint" id="sample-hint"></p>
+            </fieldset>
+
+            <fieldset class="group">
+              <legend>How LLMs are called</legend>
+              <div class="segmented" role="radiogroup" aria-label="How LLMs are called">
+                <label><input type="radio" name="llm_batch" value="20" checked><span>20 replies at once</span></label>
+                <label><input type="radio" name="llm_batch" value="1"><span>One by one</span></label>
+              </div>
+              <p class="hint">20 at once is the cheapest way to use an LLM. One by one is how most
+                apps work, and how decision models are called here.</p>
+            </fieldset>
+
+            <fieldset class="group group-models">
+              <legend><span class="kind-dot decision" aria-hidden="true"></span>Decision models</legend>
+              <div id="decision-list" class="cards cards-models"></div>
+              <div class="bulk"><button type="button" data-bulk="decision" data-on="1">Select all</button><button type="button" data-bulk="decision" data-on="0">Clear</button></div>
+            </fieldset>
+
+            <fieldset class="group group-models">
+              <legend><span class="kind-dot llm" aria-hidden="true"></span>LLMs</legend>
+              <div id="llm-list" class="cards cards-models"></div>
+              <div class="bulk"><button type="button" data-bulk="llm" data-on="1">Select all</button><button type="button" data-bulk="llm" data-on="0">Clear</button></div>
+            </fieldset>
+          </div>
+        </fieldset>
+        <p class="form-error" id="form-error" role="alert" hidden></p>
+      </form>
+    </section>
+
+    <section class="track-section" id="track-section" aria-labelledby="track-title">
+      <h2 id="track-title">Track</h2>
+      <div id="track" class="track">
+        <p class="empty">The lanes appear here when the race starts. Each one fills as its model answers replies.</p>
+      </div>
+      <p class="visually-hidden" id="announcer" aria-live="polite"></p>
+    </section>
+
+    <section id="results" class="results" aria-labelledby="results-title" hidden>
+      <div class="results-head">
+        <div>
+          <h2 id="results-title">Results</h2>
+          <p class="hint" id="results-context"></p>
+        </div>
+        <button type="button" id="download" class="secondary" hidden>Download results (JSON)</button>
+      </div>
+      <p class="waiting" id="waiting" hidden></p>
+
+      <div id="takeaways" class="takeaways"></div>
+
+      <h3>Scoreboard</h3>
+      <p class="hint" id="answer-key-hint"></p>
+      <div class="table-wrap"><table id="scoreboard" class="scoreboard"></table></div>
+      <details class="tech">
+        <summary>Technical details</summary>
+        <div class="table-wrap"><table id="tech-table" class="scoreboard"></table></div>
+        <dl class="glossary">
+          <dt>Cost of this race</dt><dd>What the race really cost on OpenRouter.</dd>
+          <dt>Cohen's kappa</dt><dd>Right answers with the lucky guesses removed. 1 is perfect, 0 is no better than guessing. It matters when one answer is very common: always answering "no" to the making-of question gets 96% right answers but a kappa of 0.</dd>
+          <dt>Found</dt><dd>For yes/no questions: how many of the replies the answer key marks "yes" the model also found.</dd>
+          <dt>Sure</dt><dd>Decision models give a probability. When it falls between 0.3 and 0.7 the model is not sure, and code can send the reply to a person.</dd>
+          <dt>Typical call</dt><dd>Median time of one request to the model.</dd>
+          <dt>Tokens written</dt><dd>Text the LLM generated, which you pay for. Decision models do not write an answer, and their output is not billed.</dd>
+        </dl>
+      </details>
+
+      <div class="podiums" id="podiums"></div>
+      <div class="legend" id="kind-legend"></div>
+
+      <h3>What each model answered</h3>
+      <p class="hint">How each model split the replies between the possible answers, next to the answer key.</p>
+      <div id="distributions"></div>
+
+      <div id="explorer-block" hidden>
+        <h3>Reply by reply</h3>
+        <div class="explorer-controls">
+          <div id="explorer-questions" class="segmented" role="radiogroup" aria-label="Question"></div>
+          <div class="segmented" role="radiogroup" aria-label="Filter replies">
+            <label><input type="radio" name="filter" value="disagree" checked><span>Where models disagree</span></label>
+            <label><input type="radio" name="filter" value="all"><span>All replies</span></label>
+          </div>
+        </div>
+        <p class="hint">Open a reply to see what each model returned: a probability for every answer
+          from decision models, the text written by LLMs.</p>
+        <ol id="explorer" class="explorer"></ol>
+        <button type="button" id="more" class="secondary" hidden>Show 20 more replies</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="tooltip" class="tooltip" role="status" hidden></div>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
